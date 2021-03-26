@@ -1,36 +1,32 @@
+import sbt.Keys._
+
 name := "search_engine"
  
-version := "1.0" 
-      
-lazy val `search_engine` = (project in file(".")).enablePlugins(PlayScala)
+version := "1.0"
 
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-      
-resolvers += "Akka Snapshot Repository" at "https://repo.akka.io/snapshots/"
-      
-scalaVersion := "2.12.2"
+scalaVersion := "2.11.11"
 
-libraryDependencies ++= Seq(
-  guice, specs2 % Test,
-  "org.apache.flink" %% "flink-connector-kafka" % "1.12.0",
-  "org.apache.flink" %% "flink-streaming-scala" % "1.12.0" ,
+resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
 
-  "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.7.2",
-  "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "ch.qos.logback" % "logback-core" % "1.1.7",
-  "org.slf4j" % "log4j-over-slf4j" % "1.7.21",
-  "org.codehaus.janino" % "janino" % "3.0.7",
+lazy val `search_engine` = (project in file("."))
+  .aggregate(`crawler`, `search_api`)
 
-  // Slick
-  "com.typesafe.play" %% "play-slick" % "4.0.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "4.0.0",
+lazy val `crawler` = project in file("crawler")
 
-  // Postgresql
-  "org.postgresql" % "postgresql" % "42.2.19",
+lazy val `search_api` = (project in file("search_api"))
+  .dependsOn(crawler)
+  .enablePlugins(PlayScala)
+  .enablePlugins(SbtWeb)
 
-  "com.typesafe.akka" %% "akka-protobuf" % "2.6.10"
-)
+val runCrawler = inputKey[Unit]("Runs crawler ...")
+val runSearchApi = inputKey[Unit]("Runs search-api ...")
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
+runCrawler := {
+  (run in Compile in `crawler`).evaluated
+}
 
-      
+runSearchApi := {
+  (run in Compile in `search_api`).evaluated
+}
+
+fork in run := true
