@@ -19,7 +19,7 @@ lazy val `search_api` = (project in file("search_api"))
   .enablePlugins(SbtWeb)
 
 val runCrawler = inputKey[Unit]("Runs crawler ...")
-val runSearchApi = inputKey[Unit]("Runs search-api ...")
+val runSearchApi = inputKey[Unit]("Runs search_api ...")
 
 runCrawler := {
   (run in Compile in `crawler`).evaluated
