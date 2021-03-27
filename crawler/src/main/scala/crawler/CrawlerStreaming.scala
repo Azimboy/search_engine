@@ -19,6 +19,8 @@ object CrawlerStreaming {
     properties.setProperty("bootstrap.servers", config.bootstrapServers)
     properties.setProperty("zookeeper.connect", config.zookeeperConnect)
     properties.setProperty("group.id", config.groupId)
+    properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
     val dataStream = env.addSource(new FlinkKafkaConsumer[String](
       java.util.regex.Pattern.compile(config.topic),
@@ -39,8 +41,9 @@ object CrawlerStreaming {
       row.setField(0, text)
       row
     }
-    rows.name("Write to postgres")
-      .writeUsingOutputFormat(jdbcOutput)
+    rows.print()
+    rows.writeUsingOutputFormat(jdbcOutput)
+      .name("Write to postgres")
 
     env.execute()
   }

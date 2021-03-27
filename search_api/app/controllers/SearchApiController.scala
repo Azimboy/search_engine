@@ -15,13 +15,16 @@ class SearchApiController @Inject()(val activityRpo: ActivityRepository,
   extends BaseController with LazyLogging {
 
   def search(word: String) = Action.async { implicit request =>
-    activityRpo.search(word).map { texts =>
-      Ok(texts.mkString("\n"))
+    activityRpo.search(word).map { results =>
+      if (results.isEmpty) {
+        Ok("Match not found")
+      } else {
+        Ok(results.mkString("\n"))
+      }
     }
   }
 
   def addWord(word: String) = Action.async { implicit request =>
-    logger.info(s"Adding: $word")
     activityRpo.create(Activity(text = word)).map { text =>
       Ok(Json.toJson(text))
     }

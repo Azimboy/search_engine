@@ -30,9 +30,10 @@ class ActivityRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)
   }
 
   def search(word: String): Future[Seq[String]] = db.run {
-    activities.filter(_.text === word)
-      .map(_.text)
-      .result
+    sql"""SELECT text, text <-> '#$word' AS dist
+        FROM activities
+        ORDER BY dist LIMIT 10
+      """.as[String]
   }
 
 }
