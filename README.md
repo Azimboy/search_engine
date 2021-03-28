@@ -3,6 +3,7 @@
 ## Development Dependencies
 
 - Scala
+- Play Framework
 - Sbt
 - Kafka
 - Flink
