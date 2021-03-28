@@ -27,7 +27,7 @@ GRANT
 ```shell script
 sbt runSearchApi
 ```
-After successfully starting the service. Request the URL [http://localhost:9000/] from your browser and click the "Apply this script now!"
+After successfully starting the service. Request the URL [http://localhost:9000/](http://localhost:9000/) from your browser and click the "Apply this script now!"
 
 ### Start ZooKeeper:
 ```shell script
