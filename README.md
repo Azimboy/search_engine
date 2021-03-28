@@ -12,8 +12,6 @@
 ### Running Search API
 In PostgreSQL create database and user:
 ```
-postgres=# drop DATABASE crawler;
-DROP DATABASE
 postgres=# CREATE DATABASE crawler;
 CREATE DATABASE
 postgres=# CREATE USER crawler WITH PASSWORD '123';
