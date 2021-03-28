@@ -48,6 +48,15 @@ After successfully starting the service. Request the URL [http: // localhost: 90
 ```shell script
 ./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test-topic
 ```
+And send following messages to topic:
+>Сэр
+>Джонс
+>Ваша
+>карта
+>бита
+>привет
+>как жизнь
+>
 
 ### Running Crawler Engine
 This command starts the crawler service to read messages from the Kafka topic via Flink and writes the messages to PostgreSQL.
@@ -66,6 +75,8 @@ Response:
 карта
 джонс
 бита
-сэр
 ваша
+как жизнь
+сэр
+привет
 ```
