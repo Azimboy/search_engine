@@ -1,6 +1,5 @@
 package crawler
 
-import java.nio.charset.StandardCharsets
 import java.util.Properties
 
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat
@@ -20,16 +19,14 @@ object CrawlerStreaming {
     properties.setProperty("bootstrap.servers", config.bootstrapServers)
     properties.setProperty("zookeeper.connect", config.zookeeperConnect)
     properties.setProperty("group.id", config.groupId)
-//    properties.put("serializer.class", "kafka.serializer.StringEncoder");
-//    properties.put("request.required.acks", "1");
-//    properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-//    properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-//    properties.put("value.serializer.encoding", "ISO-8859-9");
+    properties.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+    properties.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+    properties.setProperty("value.serializer.encoding", "ISO-8859-9");
 
     val dataStream = env.addSource(new FlinkKafkaConsumer[String](
-      java.util.regex.Pattern.compile(config.topic),
+      config.topic,
       new SimpleStringSchema,
-      properties))
+      properties).setStartFromEarliest())
 
     val jdbcOutput = JDBCOutputFormat.buildJDBCOutputFormat()
       .setDrivername("org.postgresql.Driver")
@@ -40,13 +37,9 @@ object CrawlerStreaming {
       .setBatchInterval(1)
       .finish()
 
-    val rows = dataStream.map {text =>
-      val bytes = text.getBytes("UTF-8")
-      val value = new String(bytes, "UTF-8")
-//      val fixed = new String(text.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8)
-//      val fixed = new String(text.getBytes("Windows-1252"), "UTF-8")
+    val rows = dataStream.filter(text => text.trim.nonEmpty).map {text =>
       val row = new Row(1)
-      row.setField(0, value)
+      row.setField(0, text.toLowerCase)
       row
     }
     rows.print()

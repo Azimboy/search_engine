@@ -1,34 +1,71 @@
 # Mini Search Engine with Kafka and Flink
 
-#### Start ZooKeeper server on Windows:
+## Development Dependencies
 
+- Scala
+- Sbt
+- Kafka
+- Flink
+- PostgreSQL
+
+### Running Search API
+In PostgreSQL create database and user:
 ```
-.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+postgres=# drop DATABASE crawler;
+DROP DATABASE
+postgres=# CREATE DATABASE crawler;
+CREATE DATABASE
+postgres=# CREATE USER crawler WITH PASSWORD '123';
+CREATE ROLE
+postgres=# ALTER USER crawler WITH SUPERUSER;
+ALTER ROLE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE crawler TO crawler;
+GRANT
 ```
 
-#### Start Kafka server on Windows:
+### Run Search API
+```shell script
+sbt runSearchApi
+```
+After successfully starting the service. Request the URL [http: // localhost: 9000 /] from your browser and click the "Apply this script now!"
 
-```
-.\bin\windows\kafka-server-start.bat .\config\server.properties
-```
-
-#### Create topic
-```
-.\bin\windows\kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic TestTopic
+### Start ZooKeeper:
+```shell script
+./bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
 
-#### Send messages to topic 
+### Start Kafka:
+```shell script
+./bin/kafka-server-start.sh ./config/server.properties
 ```
-.\bin\windows\kafka-console-producer.bat --broker-list localhost:9092 --topic TestTopic
+
+### Create topic
+```shell script
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test-topic
+```
+
+### Send messages to topic 
+```shell script
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test-topic
 ```
 
 ### Running Crawler Engine
-```
-sbt "runCrawler --topic TestTopic --group_id TestGroup --zookeeper_connect localhost:2181 --bootstrap_servers localhost:9092 --postgres_host loc
-alhost:5432 --postgres_database search_db --postgres_user admin --postgres_password 123"
+This command starts the crawler service to read messages from the Kafka topic via Flink and writes the messages to PostgreSQL.
+```shell script
+sbt "runCrawler --topic test-topic --group_id test --zookeeper_connect localhost:2181 --bootstrap_servers localhost:9092 --postgres_host localhost:5432 --postgres_database crawler --postgres_user crawler --postgres_password 123"
 ```
 
-### Running Search API
+### Usage Search API
+This service returns the first 10 similar words stored by the crawler, in descending order.
+Query:
+```shell script
+curl http://localhost:9000/?word=джакарта
 ```
-sbt runSearchApi
+Response:
+```
+карта
+джонс
+бита
+сэр
+ваша
 ```

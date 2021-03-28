@@ -6,7 +6,7 @@ import models.{Activity, ActivityRepository}
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SearchApiController @Inject()(val activityRpo: ActivityRepository,
@@ -14,18 +14,23 @@ class SearchApiController @Inject()(val activityRpo: ActivityRepository,
                                    (implicit ec: ExecutionContext)
   extends BaseController with LazyLogging {
 
-  def search(word: String) = Action.async { implicit request =>
-    activityRpo.search(word).map { results =>
-      if (results.isEmpty) {
-        Ok("Match not found")
-      } else {
-        Ok(results.mkString("\n"))
-      }
+  def search(wordOpt: Option[String]) = Action.async { implicit request =>
+    wordOpt match {
+      case Some(word) =>
+        activityRpo.search(word.toLowerCase).map { results =>
+          if (results.isEmpty) {
+            Ok("Match not found")
+          } else {
+            Ok(results.mkString("\n"))
+          }
+        }
+      case None =>
+        Future.successful(Ok("Hello!"))
     }
   }
 
   def addWord(word: String) = Action.async { implicit request =>
-    activityRpo.create(Activity(text = word)).map { text =>
+    activityRpo.create(Activity(text = word.toLowerCase)).map { text =>
       Ok(Json.toJson(text))
     }
   }
