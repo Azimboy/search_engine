@@ -14,7 +14,7 @@ class SearchApiController @Inject()(val activityRpo: ActivityRepository,
                                    (implicit ec: ExecutionContext)
   extends BaseController with LazyLogging {
 
-  def search(wordOpt: Option[String]) = Action.async { implicit request =>
+  def index(wordOpt: Option[String]) = Action.async { implicit request =>
     wordOpt match {
       case Some(word) =>
         activityRpo.search(word.toLowerCase).map { results =>
@@ -30,8 +30,8 @@ class SearchApiController @Inject()(val activityRpo: ActivityRepository,
   }
 
   def addWord(word: String) = Action.async { implicit request =>
-    activityRpo.create(Activity(text = word.toLowerCase)).map { text =>
-      Ok(Json.toJson(text))
+    activityRpo.create(Activity(text = word.toLowerCase)).map { id =>
+      Ok(Json.toJson(id))
     }
   }
 

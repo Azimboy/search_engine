@@ -3,5 +3,5 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET     /                           controllers.SearchApiController.search(word: Option[String])
+GET     /                           controllers.SearchApiController.index(word: Option[String])
 GET     /add/:word                  controllers.SearchApiController.addWord(word)
