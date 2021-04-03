@@ -22,7 +22,7 @@ postgres=# GRANT ALL PRIVILEGES ON DATABASE crawler TO crawler;
 GRANT
 ```
 
-### Run Search API
+Run Search API
 ```shell script
 sbt runSearchApi
 ```
